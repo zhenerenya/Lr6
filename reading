@@ -1,0 +1,96 @@
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string.h>
+using namespace std;
+
+struct KripSec //Структура «программное средство криптозащиты»
+{
+	string creator; //название разработчика
+	int version; //номер версии
+	string alg; //название реализуемого алгоритма
+	string lic; //наличие лицензии ФСБ- да, нет
+};
+void print(vector<KripSec>& fsb, int &n)
+{
+	int i = 1;
+	for (auto p : fsb)
+	{
+		cout << "#" << i << endl << " Creator: " << p.creator << endl << "Alg: " << p.alg << endl << "Lic: " << p.lic << endl << "Version: " << p.version << endl;
+		i++;
+	}
+}
+
+void readingdat(int& n, vector<KripSec>& fsb)
+{
+	ifstream pskb("C:\\Users\\qqq\\source\\repos\\lr6\\Program.dat", ios::binary); // Открываем файл для чтения в двоичном
+
+	if (!pskb) // Ошибка файл не открыт
+	{
+		cout << endl << "Error, file not found" << endl;
+		system("pause");
+
+	}
+	
+	pskb.read((char*)&n, sizeof(n)); // Читаем n в двоичном режиме
+	fsb.resize(n);
+	for (auto& p : fsb)
+	{
+		getline(pskb, p.creator, '\0');
+		getline(pskb, p.alg, '\0');
+		getline(pskb, p.lic, '\0');
+		pskb.read((char*)&p.version, sizeof(p.version));
+	}
+	pskb.close();
+	print(fsb, n);
+}
+
+void readingtxt(int& n, vector<KripSec>& fsb)
+{
+	ifstream pskt("C:\\Users\\qqq\\source\\repos\\lr6\\Program.txt");
+	if (!pskt) { cout << "Error. File not found" << endl; }
+	
+	pskt >> n;
+	fsb.resize(n);
+
+	for (auto& p : fsb)
+	{
+		pskt.ignore(1, '\n');
+		getline(pskt, p.creator);
+		getline(pskt, p.lic);
+		getline(pskt, p.alg);
+		pskt >> p.version;
+	}
+
+	pskt.close();
+	print(fsb, n);
+}
+
+void provtdw(int n, vector<KripSec>& fsb)
+{
+	string a;
+	cout << "Write mode of reading ('dat' or 'txt')." << endl;
+	getline(cin, a);
+	if (a == "dat")
+	{
+		readingdat(n, fsb);
+	}
+	else
+	{
+		if (a == "txt") { readingtxt(n, fsb); }
+		else
+		{
+			cout << "Error. Must be txt or dat." << endl;
+			provtdw(n, fsb);
+		}
+	}
+}
+
+int main()
+{
+	cout << "This program read data from dat-file of txt-file." << endl;
+	int n=0; //количество структур
+	vector<KripSec>fsb(n);
+	provtdw(n, fsb);
+}
