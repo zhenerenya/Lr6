@@ -1,0 +1,104 @@
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string.h>
+using namespace std;
+
+struct KripSec //Структура «программное средство криптозащиты»
+{
+	string creator; //название разработчика
+	int version; //номер версии
+	string alg; //название реализуемого алгоритма
+	string lic; //наличие лицензии ФСБ- да, нет
+};
+
+string provlic()
+{
+	string a;
+	string yes = "yes";
+	string no = "no";
+
+	cout << "License (yes or no): ";
+	getline(cin, a);
+
+	if ((a == yes) || (a == no)) {
+		return a;
+	}
+	else {
+		cout << "Error. Must be ''yes or no''" << endl;
+		return provlic();
+	}
+}
+
+//в текстовом виде
+void writingtxt(int n, vector<KripSec>&fsb)
+{
+	ofstream pskt("C:\\Users\\qqq\\source\\repos\\lr6\\Program.txt");
+	pskt << n << '\n';
+	for (auto p : fsb)
+	{
+		pskt << p.creator << '\n' << p.alg << '\n' << p.lic << '\n';
+		pskt << p.version<< '\n';
+	}
+	pskt.close();
+}
+
+//в бинарном файле
+void writingdat(int n, vector<KripSec>& fsb)
+{
+	ofstream pskb("C:\\Users\\qqq\\source\\repos\\lr6\\Program.dat", ios::binary); //открываем файл
+	pskb.write((char*)&n, sizeof(n)); // Записываем n в двоичном режим
+	for (auto p : fsb)
+	{
+		pskb << ends << p.creator << ends << p.alg << ends << p.lic << ends; //записываем жо конца строки в файл в двоичном виде
+		pskb.write((char*)&p.version, sizeof(p.version));
+
+	}
+	pskb.close(); //закрываем файл
+}
+void provtdw(int n, vector<KripSec>& fsb)
+{
+	string a;
+	cout << "Write mode of writing ('dat' or 'txt')."<<endl;
+	getline(cin, a);
+	if (a == "dat")
+	{
+		writingdat(n, fsb);
+	}
+	else
+	{
+		if (a == "txt") { writingtxt(n, fsb); }
+		else
+		{
+			cout << "Error. Must be txt or dat."<<endl;
+			provtdw(n, fsb);
+		}
+	}
+}
+
+
+int main()
+{
+	cout << "This program write data to dat-file of txt-file. You should write data." << endl;
+	int n; //количество структур
+	cout << "Write amount.";
+	cin >> n;
+	vector<KripSec>fsb(n); //вектор структур
+	//цикл ввода данных в структуру
+	for (int i = 0; i < n; i++)
+	{
+		cout << "Creator number " << i + 1 << endl;
+		cout << "Creator: ";
+		cin.ignore();
+		getline(cin, fsb[i].creator);
+		cout << "Name of alg: ";
+		cin.ignore();
+		getline(cin, fsb[i].alg);
+		fsb[i].lic = provlic();
+		cout << "Version nimber: ";
+		cin >> fsb[i].version;
+	}
+
+	provtdw(n, fsb);
+}
